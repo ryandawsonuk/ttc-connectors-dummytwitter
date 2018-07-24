@@ -5,9 +5,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.activiti.cloud.connectors.starter.channels.IntegrationResultSender;
-import org.activiti.cloud.connectors.starter.model.IntegrationRequestEvent;
-import org.activiti.cloud.connectors.starter.model.IntegrationResultEvent;
-import org.activiti.cloud.connectors.starter.model.IntegrationResultEventBuilder;
+import org.activiti.cloud.connectors.starter.configuration.ConnectorProperties;
+import org.activiti.runtime.api.model.IntegrationRequest;
+import org.activiti.runtime.api.model.IntegrationResult;
+import org.activiti.cloud.connectors.starter.model.IntegrationResultBuilder;
 import org.activiti.cloud.connectors.twitter.model.Reward;
 import org.activiti.cloud.connectors.twitter.services.SocialFeedService;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class TweetConnector {
     @Autowired
     private SocialFeedService socialFeedService;
 
+    @Autowired
+    private ConnectorProperties connectorProperties;
+
     private final IntegrationResultSender integrationResultSender;
 
     public TweetConnector(IntegrationResultSender integrationResultSender) {
@@ -43,8 +47,8 @@ public class TweetConnector {
     }
 
     @StreamListener(value = TweetConnectorChannels.TWEET_CONSUMER)
-    public void tweetRewards(IntegrationRequestEvent event) {
-        List rewards = (List) event.getVariables().get("rewards");
+    public void tweetRewards(IntegrationRequest event) {
+        List rewards = (List) event.getIntegrationContext().getInBoundVariables().get("rewards");
         if (rewards != null) {
             for (Object rewardObject : rewards) {
                 Reward r = mapper.convertValue(rewardObject,
@@ -58,8 +62,8 @@ public class TweetConnector {
                                appName),
                         ">>> No Rewards Found! ");
         }
-        Message<IntegrationResultEvent> message = IntegrationResultEventBuilder.resultFor(event)
-                .withVariables(new HashMap<>())
+        Message<IntegrationResult> message = IntegrationResultBuilder.resultFor(event, connectorProperties)
+                .withOutboundVariables(new HashMap<>())
                 .buildMessage();
         integrationResultSender.send(message);
     }
