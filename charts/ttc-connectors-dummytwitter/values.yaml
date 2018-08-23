@@ -11,6 +11,8 @@ global:
       value: guest
     password:
       value: guest
+    keycloak:
+      url: "http://activiti-keycloak.jx-staging.35.189.236.129.nip.io/auth"
 javaOpts:
   xmx: 512m
   xms: 512m
