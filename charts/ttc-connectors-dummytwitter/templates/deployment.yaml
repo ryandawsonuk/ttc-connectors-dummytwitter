@@ -30,7 +30,7 @@ spec:
         - name: SPRING_RABBITMQ_PASSWORD
           value: {{ .Values.global.rabbitmq.password.value }}
         - name: ACT_KEYCLOAK_URL
-          value: "{{ .Values.global.keycloak.url }}"
+          value: {{ .Values.global.keycloak.url }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}
